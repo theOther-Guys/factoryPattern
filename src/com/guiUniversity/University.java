@@ -14,7 +14,11 @@ public class University {
 		attendance = new ArrayList<Students>();
 		
 		student.add(new Students("ali", "qadir", "LAW"));
-		attendance.add(new Students("ali", "moh", "LAW"));
+		student.add(new Students("najib", "moh", "Economics"));
+		student.add(new Students("saba", "moh", "CS"));
+		attendance.add(new Students("ali", "moh", "Economics"));
+		attendance.add(new Students("nasir", "javed", "CS"));
+		
 	}
 
 	public void registerStudent(Students stud) {

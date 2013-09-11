@@ -4,6 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -11,11 +15,16 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import com.university.Student;
 
@@ -48,7 +57,7 @@ public class FacultyGUI extends JFrame {
 	private void addComponentsToContainers() {
 		// TODO Auto-generated method stub
 		north.add(facultySelection);
-		center.add(table);
+		center.add(new JScrollPane(table));
 		north.add(getData);
 		addItemToFacultySelection();
 		addContainerToFrame();
@@ -67,6 +76,7 @@ public class FacultyGUI extends JFrame {
 		facultySelection.addItem("CS");
 		addActionToComponents();
 		addColumnToTable();
+		addActionToComboBox();
 	}
 
 	private void addColumnToTable() {
@@ -74,16 +84,20 @@ public class FacultyGUI extends JFrame {
 		tableModel.addColumn(" Name ");
 		tableModel.addColumn(" Father Name ");
 		tableModel.addColumn(" Email Address ");
-		tableModel.addRow(new String []{ " ahmadullah", " ishaq Ali", " ahmadullah@gmail.com"});
-		tableModel.addRow(new String []{ " ahmadullah", " ishaq Ali", " ahmadullah@gmail.com"});
-		tableModel.addRow(new String []{ " ahmadullah", " ishaq Ali", " ahmadullah@gmail.com"});
-		}
-	private void addActionToTableCell(){
-		JTextField field = (JTextField)table.getCellEditor();
-			int [] data = table.getSelectedRows();
-			
+//		tableModel.addRow(new String[] { " ahmadullah", " ishaq Ali",
+//				" ahmadullah@gmail.com" });
+//		tableModel.addRow(new String[] { " ahmadullah", " ishaq Ali",
+//				" ahmadullah@gmail.com" });
+//		tableModel.addRow(new String[] { " ahmadullah", " ishaq Ali",
+//				" ahmadullah@gmail.com" });
+		addActionToTableCell();
 	}
-	
+
+	private void addActionToTableCell() {
+		table.getCellEditor();
+		addActionToComboBox();
+
+	}
 
 	private void addActionToComponents() {
 		// TODO Auto-generated method stub
@@ -91,35 +105,37 @@ public class FacultyGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String facultyName = (String) facultySelection
-						.getSelectedItem();
-				CS cs = new CS();
-				ArrayList<Students> student = University.student;
-
+				facultySelection.getSelectedItem();
+				new CS();
 				for (int i = 0; i < University.student.size(); i++) {
-					System.out.println(University.student.get(i).getName());
+					if (University.student.get(i).getFacultyName()
+							.equals(facultySelection.getSelectedItem())) {
+						// System.out.println(University.student.get(i).getName());
+						tableModel.addRow(new String[] {
+								University.student.get(i).getName(),
+								University.student.get(i).getfName(),
+								University.student.get(i).getEmailAddress() });
+					}
 				}
-				for (int index = 0; index < University.student.size(); index++) {
-					String[] data = { University.student.get(index).getfName(),
-							University.student.get(index).getfName(),
-							University.student.get(index).getEmailAddress() };
-					tableModel.addRow(data);
-					System.out
-							.println(University.student.get(index).getfName());
-					// tableModel.addRow(new String
-					// []{f.attendance.get(index).getfName() ,
-					// f.attendance.get(index).getfName() ,
-					// f.attendance.get(index).getEmailAddress()});
-				}
+
+//				for (int index = 0; index < University.student.size(); index++) {
+//					String[] data = { University.student.get(index).getfName(),
+//							University.student.get(index).getfName(),
+//							University.student.get(index).getEmailAddress() };
+//					tableModel.addRow(data);
+//					System.out
+//							.println(University.student.get(index).getfName());
+//					// tableModel.addRow(new String
+//					// []{f.attendance.get(index).getfName() ,
+//					// f.attendance.get(index).getfName() ,
+//					// f.attendance.get(index).getEmailAddress()});
+//				}
 				// loadData(f);
 
 			}
 
 			private void loadData(University cs) {
-				// TODO Auto-generated method stub
-				// addColumnForSubjects((CS) f);
-				String faculty = (String) facultySelection.getSelectedItem();
+				facultySelection.getSelectedItem();
 				for (int index = 0; index < cs.attendance.size(); index++) {
 					tableModel.addRow(new String[] {
 							cs.attendance.get(index).getfName(),
@@ -127,6 +143,7 @@ public class FacultyGUI extends JFrame {
 							cs.attendance.get(index).getEmailAddress() });
 				}
 				center.validate();
+				addColumnForSubjects((CS) cs);
 			}
 
 			private void addColumnForSubjects(CS f) {
@@ -137,7 +154,43 @@ public class FacultyGUI extends JFrame {
 				}
 			}
 		});
-		
+
+	}
+
+	private void addActionToComboBox() {
+		facultySelection.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				int row = table.getSelectedRow();
+				for (int index = 0; index < table.getColumnCount(); index++) {
+					table.getCellEditor(row, index);
+					table.getCellRenderer(row, index);
+					table.getCellEditor();
+				}
+
+			}
+		});
+		addActionToTableCells();
+	}
+	private void addActionToTableCells(){
+		table.getModel().addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				// TODO Auto-generated method stub
+			CreditSheet creditSheet = new CreditSheet();
+			try {
+			int selectedColumn = table.getSelectedColumn();
+			int selectedRow = table.getSelectedRow();
+			creditSheet.setName(table.getValueAt(selectedRow, selectedColumn).toString());
+			}catch (ArrayIndexOutOfBoundsException e1){
+//				System.out.println("no such data" );
+			}
+			
+			}
+		});
 	}
 
 	public static void main(String[] args) {
